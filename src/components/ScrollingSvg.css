@@ -1,0 +1,22 @@
+.scrolling-svg-container {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+  height: 140px; /* Match your SVG height */
+}
+
+.scrolling-svg-wrapper {
+  display: flex;
+  width: 200%; /* Double width for two copies */
+  animation: scroll 30s linear infinite;
+}
+
+.scrolling-svg {
+  width: 50%; /* Each SVG takes half the container */
+  height: 100%;
+}
+
+@keyframes scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
