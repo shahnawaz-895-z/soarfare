@@ -10,6 +10,7 @@ import TestimonialSection from "@/components/testimonialsection";
 import Footer from "@/components/footer";
 import VideoSection from "@/components/videosection";
 import BenefitsVideoSection from "@/components/benefitsVideosection";
+import Whysoarfare2 from "@/components/whysoarfaer2";
 
 const Index = () => {
   return (
@@ -24,6 +25,7 @@ const Index = () => {
       <PricingSection />
       <VideoSection/>
       <ExploreMoreSection />
+      <Whysoarfare2/>
       <BlogSection />
       <FAQSection />
       <TestimonialSection />

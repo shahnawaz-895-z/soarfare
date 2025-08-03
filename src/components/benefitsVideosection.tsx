@@ -18,7 +18,7 @@ const BenefitsVideoSection = () => {
           }
         }
       },
-      { threshold: 0.5 }
+      { threshold: 0.1 }
     );
 
     if (sectionRef.current) {
@@ -45,12 +45,14 @@ const BenefitsVideoSection = () => {
     <section
       ref={sectionRef}
       onWheel={handleWheel}
+      className="relative w-full overflow-hidden"
       style={{
+        height: "100vh",
+        minHeight: "600px", // Fallback minimum height
         transform: `scale(${zoom})`,
         transformOrigin: "center",
         transition: "transform 0.2s ease",
       }}
-      className="relative w-full h-screen overflow-hidden"
     >
       <video
         ref={videoRef}
@@ -60,7 +62,6 @@ const BenefitsVideoSection = () => {
         muted
         playsInline
       />
-
       <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
         {/* Content here if needed */}
       </div>

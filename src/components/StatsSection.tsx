@@ -4,8 +4,8 @@ import { Link } from "react-router-dom";
 
 const StatsSection = () => {
   return (
-    <div className="py-10 sm:py-16 md:py-18 lg:py-24 px-4 sm:px-6 lg:px-8 bg-background relative overflow-hidden">
-      <div className="max-w-6xl mx-auto relative">
+    <div className="py-10 sm:py-16 md:py-18 lg:py-30 px-4 sm:px-6 lg:px-8 bg-background relative overflow-hidden">
+      <div className="max-w-7xl mx-auto relative">
         
         {/* Heading Section - Only visible on smaller screens */}
         <div className="lg:hidden text-center mb-6 sm:mb-8 px-2">
@@ -18,7 +18,7 @@ const StatsSection = () => {
           </h2>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 md:gap-10 lg:gap-12 items-center">
+        <div className="grid lg:grid-cols-2 gap-20 sm:gap-8 md:gap-10 lg:gap-20 items-center">
           
           {/* Image Section with Overlapping Icon */}
           <div className="order-1 lg:order-1 relative flex justify-center lg:justify-end">
@@ -35,7 +35,7 @@ const StatsSection = () => {
               />
               
               {/* Overlapping Stat Icon - Under the main image */}
-              <div className="absolute -top-3 -right-3 sm:-top-4 sm:-right-4 md:-top-5 md:-right-5 lg:-top-6 lg:-right-6 z-0">
+              <div className="absolute -top-3 -right-3 sm:-top-5 sm:-right-5 md:-top-7 md:-right-8 lg:-top-10 lg:-right-10 z-0">
                 <div className="w-16  h-16 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 bg-white rounded-full shadow-md flex items-center justify-center p-3 sm:p-2 md:p-2.5 transform-gpu will-change-transform">
                   <img 
                     src="/statpng.png" 
@@ -103,9 +103,6 @@ const StatsSection = () => {
           </div>
         </div>
 
-        {/* Background Decorative Elements */}
-        <div className="absolute top-6 left-6 w-12 h-12 bg-orange-100 rounded-full opacity-20 hidden lg:block"></div>
-        <div className="absolute bottom-6 right-6 w-16 h-16 bg-blue-100 rounded-full opacity-15 hidden lg:block"></div>
       </div>
     </div>
   );

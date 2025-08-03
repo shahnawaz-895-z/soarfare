@@ -32,7 +32,7 @@ export default function TestimonialCard() {
         }}
       >
         {/* Left Image Section */}
-        <div className="w-full md:w-1/2 h-[430px] relative">
+        <div className="w-full md:w-1/2 h-[450px] relative">
           <img
             src="/image 26.png"
             alt="Happy Customers"
@@ -41,7 +41,7 @@ export default function TestimonialCard() {
         </div>
 
         {/* Right Content Section */}
-        <div className="w-full md:w-1/2 p-8 flex flex-col justify-between">
+        <div className="w-full md:w-1/2 p-6 flex flex-col justify-between">
           <div>
             <p className="text-sm text-[#85A9D0] font-semibold uppercase mb-1">
               Testimonial

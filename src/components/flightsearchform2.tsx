@@ -137,7 +137,7 @@ const FlightSearchComponent = () => {
     }
 
     return (
-      <div className="bg-white text-black rounded-lg shadow-xl border p-3 sm:p-4 w-[320px] sm:w-96 max-w-[calc(100vw-1rem)] z-[2147483647]">
+      <div className="bg-white text-black rounded-lg shadow-xl border p-3 sm:p-4 w-[320px] sm:w-96 max-w-[calc(100vw-1rem)] ">
         {/* Calendar Header */}
         <div className="flex justify-between items-center mb-4">
           <button
@@ -189,7 +189,7 @@ const FlightSearchComponent = () => {
   };
 
   return (
-    <div className="w-full bg-transparent text-white relative" style={{zIndex: 999999, position: 'relative', isolation: 'isolate'}}>
+    <div className="w-full bg-transparent text-white relative z-[999990]" >
       {/* Search Bar Container */}
       <div className="bg-transparent p-3 sm:p-6">
         <div className="max-w-7xl mx-auto">
@@ -236,7 +236,7 @@ const FlightSearchComponent = () => {
               
               {/* From Dropdown - Desktop */}
               {showFromDropdown && isFromInputMode && (
-                <div className="absolute top-full left-0 mt-2 w-80 xl:w-96 bg-white text-black rounded-lg shadow-xl border max-h-60 overflow-y-auto z-[2147483647]">
+                <div className="absolute top-full left-0 z-[999999] mt-2 w-80 xl:w-96 bg-white text-black rounded-lg shadow-xl border max-h-60 overflow-y-auto ">
                   {getFilteredFromAirports().length > 0 ? (
                     getFilteredFromAirports().map((airport, index) => (
                       <button
@@ -319,7 +319,7 @@ const FlightSearchComponent = () => {
 
               {/* To Dropdown - Desktop */}
               {showToDropdown && isToInputMode && (
-                <div className="absolute top-full left-0 mt-2 w-80 xl:w-96 bg-white text-black rounded-lg shadow-xl border max-h-60 overflow-y-auto z-[2147483647]">
+                <div className="absolute top-full left-0 mt-2 w-80 xl:w-96 bg-white text-black rounded-lg shadow-xl border max-h-60 overflow-y-auto z-[999999]">
                   {getFilteredToAirports().length > 0 ? (
                     getFilteredToAirports().map((airport, index) => (
                       <button
@@ -367,7 +367,7 @@ const FlightSearchComponent = () => {
 
               {/* Travel Date Calendar */}
               {showTravelDateCalendar && (
-                <div className="absolute top-full left-0 z-[2147483647] mt-2">
+                <div className="absolute top-full left-0 z-[999999] mt-2">
                   {renderCalendar(false)}
                 </div>
               )}
@@ -389,7 +389,7 @@ const FlightSearchComponent = () => {
 
               {/* Return Date Calendar */}
               {showReturnDateCalendar && (
-                <div className="absolute top-full left-0 z-[2147483647] mt-2">
+                <div className="absolute top-full left-0 z-[999999] mt-2">
                   {renderCalendar(true)}
                 </div>
               )}
@@ -411,7 +411,7 @@ const FlightSearchComponent = () => {
 
               {/* Seats Dropdown - Desktop */}
               {showSeatsDropdown && (
-                <div className="absolute top-full left-0 z-[2147483647] mt-2 w-64 bg-white text-black rounded-lg shadow-xl border">
+                <div className="absolute top-full left-0 z-[999999] mt-2 w-64 bg-white text-black rounded-lg shadow-xl border">
                   <div className="p-4">
                     <div className="mb-4">
                       <label className="block text-sm font-medium text-gray-700 mb-2">Class</label>
@@ -505,7 +505,7 @@ const FlightSearchComponent = () => {
 
               {/* Travel Type Dropdown - Desktop */}
               {showTravelTypeDropdown && (
-                <div className="relative top-full left-0 z-[2147483647] mt-2 w-48 bg-white text-black rounded-lg shadow-xl border">
+                <div className="absolute top-full left-0 z-[999999] mt-2 w-48 bg-white text-black rounded-lg shadow-xl border">
                   <div className="p-4 space-y-3">
                     {travelTypes.map((type, index) => (
                       <label key={index} className="flex items-center cursor-pointer">
@@ -577,7 +577,7 @@ const FlightSearchComponent = () => {
 
                 {/* From Dropdown - Mobile */}
                 {showFromDropdown && isFromInputMode && (
-                  <div className="absolute top-full left-0 right-0 mt-2 mx-2 sm:mx-3 z-[2147483647]">
+                  <div className="absolute top-full left-0 right-0 mt-2 mx-2 sm:mx-3 z-[999999]">
                     <div className="bg-white text-black rounded-lg shadow-xl border max-w-sm mx-auto max-h-60 overflow-y-auto">
                       {getFilteredFromAirports().length > 0 ? (
                         getFilteredFromAirports().map((airport, index) => (
@@ -662,7 +662,7 @@ const FlightSearchComponent = () => {
 
                 {/* To Dropdown - Mobile */}
                 {showToDropdown && isToInputMode && (
-                  <div className="absolute top-full left-0 right-0 mt-2 mx-2 sm:mx-3 z-[2147483647]">
+                  <div className="absolute top-full left-0 right-0 mt-2 mx-2 sm:mx-3 z-[999999]">
                     <div className="bg-white text-black rounded-lg shadow-xl border max-w-sm mx-auto max-h-60 overflow-y-auto">
                       {getFilteredToAirports().length > 0 ? (
                         getFilteredToAirports().map((airport, index) => (
@@ -714,7 +714,7 @@ const FlightSearchComponent = () => {
 
                 {/* Travel Date Calendar - Mobile */}
                 {showTravelDateCalendar && (
-                  <div className="absolute top-full left-0 right-0 z-100
+                  <div className="absolute top-full left-0 right-0 z-[999999]
                    mt-2 px-1">
                     <div className="flex justify-center">
                       {renderCalendar(false)}
@@ -738,7 +738,7 @@ const FlightSearchComponent = () => {
 
     {/* Return Date Calendar - Mobile */}
     {showReturnDateCalendar && (
-      <div className="absolute top-full left-0 right-0 z-100 mt-2 px-1">
+      <div className="absolute top-full left-0 right-0 z-[999999] mt-2 px-1">
         <div className="flex justify-center">
           {renderCalendar(true)}
         </div>
@@ -767,7 +767,7 @@ const FlightSearchComponent = () => {
 
                 {/* Seats Dropdown - Mobile */}
                 {showSeatsDropdown && (
-  <div className="absolute top-full left-0 right-0 z-[2147483647] mt-2 px-2 sm:px-4">
+  <div className="absolute top-full left-0 right-0 z-[999999] mt-2 px-2 sm:px-4">
     <div className="bg-white text-black rounded-lg shadow-2xl border w-full max-w-3xl mx-auto">
       <div className="p-4 space-y-6 max-h-[70vh] overflow-y-auto">
         {/* Class Selector */}
@@ -844,7 +844,7 @@ const FlightSearchComponent = () => {
 
                 {/* Travel Type Dropdown - Mobile */}
                 {showTravelTypeDropdown && (
-                  <div className="absolute top-full left-0 right-0 z-[2147483647] mt-2 mx-2 sm:mx-3">
+                  <div className="absolute top-full left-0 right-0 z-[999999] mt-2 mx-2 sm:mx-3">
                     <div className="bg-white text-black rounded-lg shadow-xl border max-w-xs mx-auto">
                       <div className="p-3 sm:p-4 space-y-3">
                         {travelTypes.map((type, index) => (
@@ -883,7 +883,7 @@ const FlightSearchComponent = () => {
       {/* Backdrop to close dropdowns when clicking outside */}
       {(showFromDropdown || showToDropdown || showSeatsDropdown || showTravelTypeDropdown || showTravelDateCalendar || showReturnDateCalendar) && (
         <div 
-          className="fixed inset-0 z-[2147483646] bg-black/20 sm:bg-transparent"
+          className="fixed inset-0 z-[999998] bg-black/20 sm:bg-transparent"
           onClick={closeAllDropdowns}
         />
       )}

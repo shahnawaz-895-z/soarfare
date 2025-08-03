@@ -12,9 +12,9 @@ const BenefitsSection = () => {
 
 
       {/* Why Choose SoarFare */}
-      <section className="bg-gray-50 py-8 sm:py-12 px-4 sm:px-6 lg:px-12  sm:ml-32">
+      <section className="bg-gray-50 py-8 sm:py-12 px-4 sm:px-6 lg:px-12  sm:ml-36">
 
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 items-center">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-4 items-center">
           {/* Text Content */}
           <div className="text-center lg:text-left">
             <p className="text-[#85C1E9] font-poppins font-medium mb-2">

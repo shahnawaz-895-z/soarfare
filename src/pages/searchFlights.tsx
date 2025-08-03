@@ -1,10 +1,23 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Search, Filter, X, ArrowRight, ChevronDown, Calendar, ChevronLeft, ChevronRight, Plane, MapPin } from "lucide-react";
-import Navigation from '@/components/Navigation';
+import { Search, Filter, X, ChevronDown, ChevronLeft, ChevronRight, Plane } from "lucide-react";
 import airports from '@/data/airports';
+import Navigation from '@/components/Navigation';
+
+// // Mock airports data
+// const airports = [
+//   { name: "John F. Kennedy International Airport", city: "New York", country: "United States", iata: "JFK" },
+//   { name: "Los Angeles International Airport", city: "Los Angeles", country: "United States", iata: "LAX" },
+//   { name: "London Heathrow Airport", city: "London", country: "United Kingdom", iata: "LHR" },
+//   { name: "Tokyo Haneda Airport", city: "Tokyo", country: "Japan", iata: "HND" },
+//   { name: "Dubai International Airport", city: "Dubai", country: "United Arab Emirates", iata: "DXB" },
+//   { name: "Singapore Changi Airport", city: "Singapore", country: "Singapore", iata: "SIN" },
+//   { name: "Paris Charles de Gaulle Airport", city: "Paris", country: "France", iata: "CDG" },
+//   { name: "Amsterdam Airport Schiphol", city: "Amsterdam", country: "Netherlands", iata: "AMS" },
+//   { name: "Frankfurt Airport", city: "Frankfurt", country: "Germany", iata: "FRA" },
+//   { name: "Hong Kong International Airport", city: "Hong Kong", country: "Hong Kong", iata: "HKG" }
+// ];
 
 const SearchFlights = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -16,8 +29,6 @@ const SearchFlights = () => {
   const [isDraggingRight, setIsDraggingRight] = useState(false);
 
   // State for dropdowns
-  const [fromLocation, setFromLocation] = useState('New York');
-  const [toLocation, setToLocation] = useState('France');
   const [fromInput, setFromInput] = useState('');
   const [toInput, setToInput] = useState('');
   const [selectedFromAirport, setSelectedFromAirport] = useState(null);
@@ -40,18 +51,33 @@ const SearchFlights = () => {
   const [children, setChildren] = useState(0);
   const [infants, setInfants] = useState(0);
 
-  // Refs for click outside detection
-  const dropdownRef = useRef(null);
-  const calendarRef = useRef(null);
+  // Separate refs for different dropdowns
+  const fromDropdownRef = useRef(null);
+  const toDropdownRef = useRef(null);
+  const seatsDropdownRef = useRef(null);
+  const travelTypeDropdownRef = useRef(null);
+  const travelCalendarRef = useRef(null);
+  const returnCalendarRef = useRef(null);
 
   // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        closeAllDropdowns();
+      if (fromDropdownRef.current && !fromDropdownRef.current.contains(event.target)) {
+        setShowFromDropdown(false);
       }
-      if (calendarRef.current && !calendarRef.current.contains(event.target)) {
+      if (toDropdownRef.current && !toDropdownRef.current.contains(event.target)) {
+        setShowToDropdown(false);
+      }
+      if (seatsDropdownRef.current && !seatsDropdownRef.current.contains(event.target)) {
+        setShowSeatsDropdown(false);
+      }
+      if (travelTypeDropdownRef.current && !travelTypeDropdownRef.current.contains(event.target)) {
+        setShowTravelTypeDropdown(false);
+      }
+      if (travelCalendarRef.current && !travelCalendarRef.current.contains(event.target)) {
         setShowTravelDateCalendar(false);
+      }
+      if (returnCalendarRef.current && !returnCalendarRef.current.contains(event.target)) {
         setShowReturnDateCalendar(false);
       }
     };
@@ -76,15 +102,6 @@ const SearchFlights = () => {
 
   const getFilteredFromAirports = () => filterAirports(fromInput);
   const getFilteredToAirports = () => filterAirports(toInput);
-
-  // Helper function to get airport display info
-  const getAirportDisplayInfo = (airport) => {
-    if (!airport) return { name: '', subtitle: '' };
-    return {
-      name: airport.city,
-      subtitle: `${airport.name} (${airport.iata})`
-    };
-  };
 
   const seatClasses = ['Economy', 'Premium Economy', 'Business', 'First Class'];
   const travelTypes = ['One Way', 'Round Trip', 'Multi-city'];
@@ -135,12 +152,6 @@ const SearchFlights = () => {
     setShowTravelTypeDropdown(false);
     setShowTravelDateCalendar(false);
     setShowReturnDateCalendar(false);
-  };
-
-  const swapLocations = () => {
-    const temp = fromLocation;
-    setFromLocation(toLocation);
-    setToLocation(temp);
   };
 
   const getDaysInMonth = (month, year) => {
@@ -340,12 +351,12 @@ const SearchFlights = () => {
       <div className="flex flex-col md:flex-row items-center justify-between">
         {/* Left section - Qatar Airways logo and show more */}
         <div className="flex flex-col items-start w-24 md:w-32 p-4 md:p-6">
-          <img src="/qatar-airways-seeklogo.png" alt="Qatar Airways" className="w-20 md:w-24 h-10 md:h-12 object-contain mb-2" />
+          <div className="w-20 md:w-24 h-10 md:h-12 bg-gray-200 rounded mb-2 flex items-center justify-center">
+            <span className="text-xs text-gray-500">LOGO</span>
+          </div>
           <button className="text-xs text-gray-500 hover:underline flex items-center">
             Show more 
-            <svg className="w-3 h-3 ml-1" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-            </svg>
+            <ChevronDown className="w-3 h-3 ml-1" />
           </button>
         </div>
 
@@ -399,43 +410,35 @@ const SearchFlights = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gray-50">
       <div className="absolute top-0 left-0 right-0 z-20 bg-[#081C3A]">
         <Navigation/>
       </div>
-
       <div className="pt-32 container mx-auto px-6 py-8">
         {/* Search Form */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-8 max-w-screen-2xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-6 gap-4 items-end">
 
             {/* From */}
-            <div className="flex-1 min-w-[160px] relative" ref={dropdownRef}>
+            <div className="flex-1 min-w-[160px] relative" ref={fromDropdownRef}>
               <label className="text-sm font-medium text-gray-700 mb-2 block">From</label>
               <div className="relative">
                 <input
                   type="text"
-                  value={selectedFromAirport ? selectedFromAirport.city : fromInput}
-                  readOnly={!!selectedFromAirport}
+                  value={selectedFromAirport ? `${selectedFromAirport.city} (${selectedFromAirport.iata})` : fromInput}
                   onChange={(e) => {
                     setFromInput(e.target.value);
-                    setSelectedFromAirport(null);
+                    if (selectedFromAirport) setSelectedFromAirport(null);
                     setShowFromDropdown(true);
                   }}
                   onFocus={() => {
-                    closeAllDropdowns();
                     setShowFromDropdown(true);
                   }}
                   placeholder="Search airports, cities..."
-                  className="rounded-lg bg-[#F8F8F8] p-3 w-full text-left font-semibold font-barlow text-[#0C2545] focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="rounded-lg bg-[#F8F8F8] p-3 w-full text-left font-semibold text-[#0C2545] focus:outline-none focus:ring-2 focus:ring-orange-500"
                   autoComplete="off"
                 />
-                {selectedFromAirport && (
-                  <div className="text-sm font-barlow text-[#212529] mt-1 px-3">
-                    {selectedFromAirport.name} ({selectedFromAirport.iata})
-                  </div>
-                )}
-
+                
                 {/* From Dropdown */}
                 {showFromDropdown && (
                   <div 
@@ -473,35 +476,35 @@ const SearchFlights = () => {
                   </div>
                 )}
               </div>
+              
+              {/* Display full airport info below input when selected */}
+              {selectedFromAirport && (
+                <div className="text-sm text-[#212529] mt-1 px-3">
+                  {selectedFromAirport.name} ({selectedFromAirport.iata})
+                </div>
+              )}
             </div>
 
             {/* To */}
-            <div className="flex-1 min-w-[160px] relative">
+            <div className="flex-1 min-w-[160px] relative" ref={toDropdownRef}>
               <label className="text-sm font-medium text-gray-700 mb-2 block">To</label>
               <div className="relative">
                 <input
                   type="text"
-                  value={selectedToAirport ? selectedToAirport.city : toInput}
-                  readOnly={!!selectedToAirport}
+                  value={selectedToAirport ? `${selectedToAirport.city} (${selectedToAirport.iata})` : toInput}
                   onChange={(e) => {
                     setToInput(e.target.value);
-                    setSelectedToAirport(null);
+                    if (selectedToAirport) setSelectedToAirport(null);
                     setShowToDropdown(true);
                   }}
                   onFocus={() => {
-                    closeAllDropdowns();
                     setShowToDropdown(true);
                   }}
                   placeholder="Search airports, cities..."
-                  className="rounded-lg bg-[#F8F8F8] p-3 w-full text-left font-semibold font-barlow text-[#0C2545] focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="rounded-lg bg-[#F8F8F8] p-3 w-full text-left font-semibold text-[#0C2545] focus:outline-none focus:ring-2 focus:ring-orange-500"
                   autoComplete="off"
                 />
-                {selectedToAirport && (
-                  <div className="text-sm font-barlow text-[#212529] mt-1 px-3">
-                    {selectedToAirport.name} ({selectedToAirport.iata})
-                  </div>
-                )}
-
+                
                 {/* To Dropdown */}
                 {showToDropdown && (
                   <div 
@@ -539,20 +542,26 @@ const SearchFlights = () => {
                   </div>
                 )}
               </div>
+              
+              {/* Display full airport info below input when selected */}
+              {selectedToAirport && (
+                <div className="text-sm text-[#212529] mt-1 px-3">
+                  {selectedToAirport.name} ({selectedToAirport.iata})
+                </div>
+              )}
             </div>
 
             {/* Travel Date */}
-            <div className="min-w-[160px] relative" ref={calendarRef}>
+            <div className="min-w-[160px] relative" ref={travelCalendarRef}>
               <label className="text-sm font-medium text-gray-700 mb-2 block">Travel Date</label>
               <button 
                 onClick={() => {
-                  closeAllDropdowns();
                   setShowTravelDateCalendar(!showTravelDateCalendar);
                 }}
                 className="rounded-lg bg-[#F8F8F8] p-3 w-full text-left"
               >
-                <div className="font-semibold font-barlow text-[#0C2545]">{travelDate}</div>
-                <div className="text-sm font-barlow text-[#212529]">{travelDay}</div>
+                <div className="font-semibold text-[#0C2545]">{travelDate}</div>
+                <div className="text-sm text-[#212529]">{travelDay}</div>
               </button>
               
               {/* Travel Date Calendar */}
@@ -564,17 +573,16 @@ const SearchFlights = () => {
             </div>
 
             {/* Return Date */}
-            <div className="min-w-[160px] relative">
+            <div className="min-w-[160px] relative" ref={returnCalendarRef}>
               <label className="text-sm font-medium text-gray-700 mb-2 block">Return Date</label>
               <button 
                 onClick={() => {
-                  closeAllDropdowns();
                   setShowReturnDateCalendar(!showReturnDateCalendar);
                 }}
                 className="rounded-lg bg-[#F8F8F8] p-3 w-full text-left"
               >
-                <div className="font-semibold font-barlow text-[#0C2545]">{returnDate}</div>
-                <div className="text-sm font-barlow text-[#212529]">{returnDay}</div>
+                <div className="font-semibold text-[#0C2545]">{returnDate}</div>
+                <div className="text-sm text-[#212529]">{returnDay}</div>
               </button>
               
               {/* Return Date Calendar */}
@@ -586,17 +594,16 @@ const SearchFlights = () => {
             </div>
 
             {/* Seats & Classes */}
-            <div className="min-w-[160px] relative" ref={dropdownRef}>
+            <div className="min-w-[160px] relative" ref={seatsDropdownRef}>
               <label className="text-sm font-medium text-gray-700 mb-2 block">Seats & Classes</label>
               <button 
                 onClick={() => {
-                  closeAllDropdowns();
                   setShowSeatsDropdown(!showSeatsDropdown);
                 }}
                 className="rounded-lg bg-[#F8F8F8] p-3 w-full text-left"
               >
-                <div className="font-semibold font-barlow text-[#0C2545]">{adults + children + infants} Passenger{adults + children + infants > 1 ? 's' : ''}</div>
-                <div className="text-sm font-barlow text-[#212529]">{seatsClass}</div>
+                <div className="font-semibold text-[#0C2545]">{adults + children + infants} Passenger{adults + children + infants > 1 ? 's' : ''}</div>
+                <div className="text-sm text-[#212529]">{seatsClass}</div>
               </button>
               
               {/* Seats Dropdown */}
@@ -669,15 +676,12 @@ const SearchFlights = () => {
                       <h4 className="text-sm font-medium text-gray-700 mb-2">Select Class</h4>
                       <div className="space-y-2">
                         {seatClasses.map((cls) => (
-                          <label key={cls} className="flex items-center">
+                          <label key={cls} className="flex items-center cursor-pointer">
                             <input
                               type="radio"
                               name="seatClass"
                               checked={seatsClass === cls}
-                              onChange={() => {
-                                setSeatsClass(cls);
-                                setShowSeatsDropdown(false);
-                              }}
+                              onChange={() => setSeatsClass(cls)}
                               className="w-4 h-4 text-blue-600 border-2 border-gray-300 focus:ring-blue-500"
                             />
                             <span className="ml-3 text-sm font-medium text-gray-700">{cls}</span>
@@ -691,17 +695,16 @@ const SearchFlights = () => {
             </div>
 
             {/* Travel Type */}
-            <div className="min-w-[160px] relative" ref={dropdownRef}>
+            <div className="min-w-[160px] relative" ref={travelTypeDropdownRef}>
               <label className="text-sm font-medium text-gray-700 mb-2 block">Travel Type</label>
               <button 
                 onClick={() => {
-                  closeAllDropdowns();
                   setShowTravelTypeDropdown(!showTravelTypeDropdown);
                 }}
                 className="rounded-lg bg-[#F8F8F8] p-3 w-full text-left"
               >
-                <div className="font-semibold font-barlow text-[#0C2545]">{travelType}</div>
-                <div className="text-sm font-barlow text-[#212529]">Economy</div>
+                <div className="font-semibold text-[#0C2545]">{travelType}</div>
+                <div className="text-sm text-[#212529]">{seatsClass}</div>
               </button>
               
               {/* Travel Type Dropdown */}
@@ -718,10 +721,7 @@ const SearchFlights = () => {
                           name="travelType"
                           value={type}
                           checked={travelType === type}
-                          onChange={() => {
-                            setTravelType(type);
-                            setShowTravelTypeDropdown(false);
-                          }}
+                          onChange={() => setTravelType(type)}
                           className="w-4 h-4 text-blue-600 border-2 border-gray-300 focus:ring-blue-500"
                         />
                         <span className="ml-3 text-sm font-medium text-gray-700">{type}</span>
@@ -737,13 +737,13 @@ const SearchFlights = () => {
           {/* Search Button */}
           <div className="mt-6 flex justify-end">
             <Button className="bg-orange-500 hover:bg-white hover:text-orange-500 border hover:border-orange-500 text-white px-8 py-3 text-lg font-semibold">
-              <Search className="w-4 h-4 " /> Search Flights
+              <Search className="w-4 h-4 mr-2" /> Search Flights
             </Button>
           </div>
         </div>
 
         {/* Mobile Filters */}
-        <div className="lg:hidden fixed bottom-6 right-6 ">
+        <div className="lg:hidden fixed bottom-6 right-6">
           <Button onClick={() => setIsFilterOpen(true)} className="bg-orange-500 hover:bg-orange-600 text-white rounded-full w-12 h-12 p-0 shadow-lg">
             <Filter className="w-5 h-5" />
           </Button>

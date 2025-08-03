@@ -169,13 +169,13 @@ export default function ExploreMoreSection() {
     }`}
   >
     {dest.label === "Search Flights" ? (
-  <Link to="/searchflights">
+  <Link to={`/searchflights?from=${dest.from}&to=${dest.to}&fromLocation=${encodeURIComponent(dest.fromLocation)}&toLocation=${encodeURIComponent(dest.toLocation)}`}>
     <span className="text-sm">{dest.label}</span>
   </Link>
 ) : (
   <div className="absolute left-[90%] -translate-x-1/2">
   <Link
-    to="/searchflights"
+    to={`/searchflights?from=${dest.from}&to=${dest.to}&fromLocation=${encodeURIComponent(dest.fromLocation)}&toLocation=${encodeURIComponent(dest.toLocation)}`}
     className="w-10 h-10 flex items-center justify-center rounded-full bg-transparent border border-white hover:bg-orange-500 transition duration-300"
   >
     <svg
@@ -206,28 +206,6 @@ export default function ExploreMoreSection() {
   </Swiper>
 </div>
 
-
-     <div className="relative w-full sm:w-[90%] md:w-[80%] lg:w-[63%] mx-auto rounded-2xl overflow-hidden h-[180px] sm:h-[270px] md:h-[370px] lg:h-[570px]">
-  <img
-    src="/Group 1000003876.png"
-    alt="Plan Ahead Banner"
-    width={1600}
-    height={1200}
-    className="w-full h-[180px] sm:h-[270px] md:h-[370px] lg:h-[570px] object-cover transition-all duration-300"
-  />
-  <div className="absolute inset-0 bg-black/30" />
-  <div className="absolute inset-0 flex flex-col justify-center items-start px-2 sm:px-6 md:px-12 lg:px-16 space-y-2 sm:space-y-3">
-    <p className="text-white text-xs sm:text-sm md:text-base font-poppins">
-      Can't decide where to go?
-    </p>
-    <h2 className="text-white text-lg sm:text-2xl md:text-3xl lg:text-5xl font-bold font-poppins leading-tight max-w-[96%] sm:max-w-md">
-      Plan Ahead, <br /> Save Now, <br /> Fly Anywhere
-    </h2>
-    <Button className="bg-orange-500 hover:bg-orange-600 text-white text-xs sm:text-base px-3 py-1.5 sm:px-5 sm:py-2 md:px-6 md:py-3 rounded-md">
-      Join SoarFare
-    </Button>
-  </div>
-</div>
 
     </section>
   );

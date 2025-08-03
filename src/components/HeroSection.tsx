@@ -53,25 +53,18 @@ const HeroSection = () => {
   }, [currentSlide]);
 
   return (
-    <div className="relative min-h-[500px] h-[60vh] sm:h-[70vh] lg:h-[80vh] flex flex-col transform-gpu will-change-transform">
+    <div className="relative min-h-[500px] h-[60vh] sm:h-[70vh] lg:h-[80vh] flex flex-col">
       {/* Background Images with Swiper Effect */}
       <div className="absolute inset-0 overflow-hidden">
         {backgrounds.map((bg, index) => (
           <div
             key={index}
-            className={`absolute inset-0 bg-cover bg-center bg-no-repeat transition-all duration-700 ease-in-out transform-gpu will-change-transform ${
+            className={`absolute inset-0 bg-cover bg-center bg-no-repeat transition-all duration-700 ease-in-out ${
               index === currentSlide 
                 ? 'opacity-100 scale-100' 
                 : 'opacity-0 scale-105'
             }`}
-            style={{ 
-              backgroundImage: `url(${bg})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat',
-              width: '100vw',
-              height: '100vh'
-            }}
+            style={{ backgroundImage: `url(${bg})` }}
           />
         ))}
       </div>

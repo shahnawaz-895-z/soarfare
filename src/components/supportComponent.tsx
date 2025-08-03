@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Mail, Phone, MapPin } from 'lucide-react';
+import Whysoarfare3 from './whysorafare3';
 
 const SoarFareSupport = () => {
   const [formData, setFormData] = useState({
@@ -168,7 +169,11 @@ const SoarFareSupport = () => {
             </div>
           </div>
         </div>
+        
       </div>
+      <div className="mt-16">
+  <Whysoarfare3 />
+</div>
     </div>
   );
 };
