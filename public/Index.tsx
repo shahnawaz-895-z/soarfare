@@ -11,6 +11,7 @@ import Footer from "@/components/footer";
 import VideoSection from "@/components/videosection";
 import BenefitsVideoSection from "@/components/benefitsVideosection";
 import Whysoarfare2 from "@/components/whysoarfaer2";
+import React from "react";
 
 const Index = () => {
   return (

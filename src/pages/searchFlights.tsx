@@ -5,20 +5,6 @@ import { Search, Filter, X, ChevronDown, ChevronLeft, ChevronRight, Plane } from
 import airports from '@/data/airports';
 import Navigation from '@/components/Navigation';
 
-// // Mock airports data
-// const airports = [
-//   { name: "John F. Kennedy International Airport", city: "New York", country: "United States", iata: "JFK" },
-//   { name: "Los Angeles International Airport", city: "Los Angeles", country: "United States", iata: "LAX" },
-//   { name: "London Heathrow Airport", city: "London", country: "United Kingdom", iata: "LHR" },
-//   { name: "Tokyo Haneda Airport", city: "Tokyo", country: "Japan", iata: "HND" },
-//   { name: "Dubai International Airport", city: "Dubai", country: "United Arab Emirates", iata: "DXB" },
-//   { name: "Singapore Changi Airport", city: "Singapore", country: "Singapore", iata: "SIN" },
-//   { name: "Paris Charles de Gaulle Airport", city: "Paris", country: "France", iata: "CDG" },
-//   { name: "Amsterdam Airport Schiphol", city: "Amsterdam", country: "Netherlands", iata: "AMS" },
-//   { name: "Frankfurt Airport", city: "Frankfurt", country: "Germany", iata: "FRA" },
-//   { name: "Hong Kong International Airport", city: "Hong Kong", country: "Hong Kong", iata: "HKG" }
-// ];
-
 const SearchFlights = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [minPrice, setMinPrice] = useState(0);
@@ -33,10 +19,10 @@ const SearchFlights = () => {
   const [toInput, setToInput] = useState('');
   const [selectedFromAirport, setSelectedFromAirport] = useState(null);
   const [selectedToAirport, setSelectedToAirport] = useState(null);
-  const [travelDate, setTravelDate] = useState('20 July');
-  const [returnDate, setReturnDate] = useState('25 July');
-  const [travelDay, setTravelDay] = useState('Sunday');
-  const [returnDay, setReturnDay] = useState('Friday');
+  const [travelDate, setTravelDate] = useState('mm/dd/yyyy');
+  const [returnDate, setReturnDate] = useState('mm/dd/yyyy');
+  const [travelDay, setTravelDay] = useState(null);
+  const [returnDay, setReturnDay] = useState(null);
   const [seatsClass, setSeatsClass] = useState('Economy');
   const [travelType, setTravelType] = useState('One Way');
   const [showFromDropdown, setShowFromDropdown] = useState(false);
@@ -50,6 +36,19 @@ const SearchFlights = () => {
   const [adults, setAdults] = useState(1);
   const [children, setChildren] = useState(0);
   const [infants, setInfants] = useState(0);
+  
+  // Error states
+  const [errors, setErrors] = useState({
+    from: false,
+    to: false,
+    travelDate: false,
+    returnDate: false,
+    seatsClass: false,
+    travelType: false
+  });
+
+  // New state to track if search has been performed
+  const [searchPerformed, setSearchPerformed] = useState(false);
 
   // Separate refs for different dropdowns
   const fromDropdownRef = useRef(null);
@@ -175,10 +174,35 @@ const SearchFlights = () => {
       setReturnDate(formattedDate);
       setReturnDay(dayOfWeek);
       setShowReturnDateCalendar(false);
+      setErrors(prev => ({...prev, returnDate: false}));
     } else {
       setTravelDate(formattedDate);
       setTravelDay(dayOfWeek);
       setShowTravelDateCalendar(false);
+      setErrors(prev => ({...prev, travelDate: false}));
+    }
+  };
+
+  // Form validation
+  const validateForm = () => {
+    const newErrors = {
+      from: !selectedFromAirport,
+      to: !selectedToAirport,
+      travelDate: !travelDate,
+      returnDate: travelType === 'Round Trip' && !returnDate,
+      seatsClass: !seatsClass,
+      travelType: !travelType
+    };
+    
+    setErrors(newErrors);
+    return !Object.values(newErrors).some(error => error);
+  };
+
+  const handleSearch = () => {
+    if (validateForm()) {
+      setSearchPerformed(true);
+      // Proceed with search functionality
+      console.log("Searching flights...");
     }
   };
 
@@ -264,7 +288,7 @@ const SearchFlights = () => {
         <h3 className="font-semibold mb-4">Filter by price</h3>
 
         <div 
-          className="mb-6 px-2"
+          className="mb-6 px-3"
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseUp}
@@ -289,7 +313,7 @@ const SearchFlights = () => {
             {/* Right price label */}
             <div 
               className="absolute -top-6 text-xs font-medium text-gray-700" 
-              style={{ left: `calc(${rightThumb}% - 12px)` }}
+              style={{ left: `calc(${rightThumb}% - 22px)` }}
             >
               ${maxPrice}
             </div>
@@ -316,7 +340,7 @@ const SearchFlights = () => {
           </div>
         </div>
 
-        <button className="w-1/6 text-orange-500 border border-transparent hover:border-orange-500 rounded px-3 py-1">
+        <button className="w-1/4 text-orange-500 border border-transparent hover:border-orange-500 rounded px-3 py-1 justify-center">
           Apply
         </button>
       </div>
@@ -365,8 +389,8 @@ const SearchFlights = () => {
           {/* From section */}
           <div className="text-left md:text-left text-center min-w-[150px] md:min-w-[180px] mb-4 md:mb-0">
             <div className="text-xs text-gray-500 mb-1">From</div>
-            <div className="font-semibold text-xl md:text-2xl text-gray-900 mb-1">New York</div>
-            <div className="text-sm text-gray-600">JFK - John F. Kennedy In...</div>
+            <div className="font-semibold text-xl md:text-2xl text-gray-900 mb-1">{selectedFromAirport?.city}</div>
+            <div className="text-sm text-gray-600">{selectedFromAirport?.iata}, {selectedFromAirport?.name}</div>
           </div>
 
           {/* Flight path with arrow */}
@@ -393,8 +417,8 @@ const SearchFlights = () => {
           {/* To section */}
           <div className="text-left md:text-left text-center min-w-[150px] md:min-w-[180px] mb-4 md:mb-0">
             <div className="text-xs text-gray-500 mb-1">To</div>
-            <div className="font-semibold text-xl md:text-2xl text-gray-900 mb-1">London</div>
-            <div className="text-sm text-gray-600">LCY, London city airport</div>
+            <div className="font-semibold text-xl md:text-2xl text-gray-900 mb-1">{selectedToAirport?.city}</div>
+            <div className="text-sm text-gray-600">{selectedToAirport?.iata}, {selectedToAirport?.name}</div>
           </div>
         </div>
 
@@ -420,7 +444,7 @@ const SearchFlights = () => {
           <div className="grid grid-cols-1 lg:grid-cols-6 gap-4 items-end">
 
             {/* From */}
-            <div className="flex-1 min-w-[160px] relative" ref={fromDropdownRef}>
+            <div className="flex-1 min-w-[130px] relative" ref={fromDropdownRef}>
               <label className="text-sm font-medium text-gray-700 mb-2 block">From</label>
               <div className="relative">
                 <input
@@ -430,12 +454,13 @@ const SearchFlights = () => {
                     setFromInput(e.target.value);
                     if (selectedFromAirport) setSelectedFromAirport(null);
                     setShowFromDropdown(true);
+                    setErrors(prev => ({...prev, from: false}));
                   }}
                   onFocus={() => {
                     setShowFromDropdown(true);
                   }}
                   placeholder="Search airports, cities..."
-                  className="rounded-lg bg-[#F8F8F8] p-3 w-full text-left font-semibold text-[#0C2545] focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className={`rounded-lg bg-[#F8F8F8] p-6 w-full text-left font-semibold text-[#0C2545] focus:outline-none ${errors.from ? 'border-2 border-red-500' : 'focus:ring-2 focus:ring-orange-500'}`}
                   autoComplete="off"
                 />
                 
@@ -454,6 +479,7 @@ const SearchFlights = () => {
                             setSelectedFromAirport(airport);
                             setFromInput('');
                             setShowFromDropdown(false);
+                            setErrors(prev => ({...prev, from: false}));
                           }}
                           className="w-full p-4 text-left hover:bg-gray-100 transition-colors flex items-center space-x-3 border-b border-gray-200 last:border-b-0 cursor-pointer"
                         >
@@ -471,22 +497,20 @@ const SearchFlights = () => {
                     ) : fromInput.length >= 2 ? (
                       <div className="p-4 text-gray-500 text-center">No airports found</div>
                     ) : (
-                      <div className="p-4 text-gray-500 text-center">Type at least 2 characters to search</div>
+                      <div className="p-4 text-gray-500 text-center"></div>
                     )}
                   </div>
                 )}
               </div>
               
-              {/* Display full airport info below input when selected */}
-              {selectedFromAirport && (
-                <div className="text-sm text-[#212529] mt-1 px-3">
-                  {selectedFromAirport.name} ({selectedFromAirport.iata})
-                </div>
+              {/* Error message */}
+              {errors.from && (
+                <p className="text-red-500 text-xs mt-1">Please select departure airport</p>
               )}
             </div>
 
             {/* To */}
-            <div className="flex-1 min-w-[160px] relative" ref={toDropdownRef}>
+            <div className="flex-1 min-w-[130px] relative" ref={toDropdownRef}>
               <label className="text-sm font-medium text-gray-700 mb-2 block">To</label>
               <div className="relative">
                 <input
@@ -496,12 +520,13 @@ const SearchFlights = () => {
                     setToInput(e.target.value);
                     if (selectedToAirport) setSelectedToAirport(null);
                     setShowToDropdown(true);
+                    setErrors(prev => ({...prev, to: false}));
                   }}
                   onFocus={() => {
                     setShowToDropdown(true);
                   }}
                   placeholder="Search airports, cities..."
-                  className="rounded-lg bg-[#F8F8F8] p-3 w-full text-left font-semibold text-[#0C2545] focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className={`rounded-lg bg-[#F8F8F8] p-6 w-full text-left font-semibold text-[#0C2545] focus:outline-none ${errors.to ? 'border-2 border-red-500' : 'focus:ring-2 focus:ring-orange-500'}`}
                   autoComplete="off"
                 />
                 
@@ -520,6 +545,7 @@ const SearchFlights = () => {
                             setSelectedToAirport(airport);
                             setToInput('');
                             setShowToDropdown(false);
+                            setErrors(prev => ({...prev, to: false}));
                           }}
                           className="w-full p-4 text-left hover:bg-gray-100 transition-colors flex items-center space-x-3 border-b border-gray-200 last:border-b-0 cursor-pointer"
                         >
@@ -536,32 +562,28 @@ const SearchFlights = () => {
                       ))
                     ) : toInput.length >= 2 ? (
                       <div className="p-4 text-gray-500 text-center">No airports found</div>
-                    ) : (
-                      <div className="p-4 text-gray-500 text-center">Type at least 2 characters to search</div>
-                    )}
+                    ) : null}
                   </div>
                 )}
               </div>
               
-              {/* Display full airport info below input when selected */}
-              {selectedToAirport && (
-                <div className="text-sm text-[#212529] mt-1 px-3">
-                  {selectedToAirport.name} ({selectedToAirport.iata})
-                </div>
+              {/* Error message */}
+              {errors.to && (
+                <p className="text-red-500 text-xs mt-1">Please select arrival airport</p>
               )}
             </div>
 
             {/* Travel Date */}
-            <div className="min-w-[160px] relative" ref={travelCalendarRef}>
+            <div className={`min-w-[130px] relative ${errors.travelDate ? 'border-2 border-red-500 rounded-lg' : ''}`} ref={travelCalendarRef}>
               <label className="text-sm font-medium text-gray-700 mb-2 block">Travel Date</label>
               <button 
                 onClick={() => {
                   setShowTravelDateCalendar(!showTravelDateCalendar);
+                  setErrors(prev => ({...prev, travelDate: false}));
                 }}
-                className="rounded-lg bg-[#F8F8F8] p-3 w-full text-left"
+                className="rounded-lg bg-[#F8F8F8] p-6 w-full text-left"
               >
-                <div className="font-semibold text-[#0C2545]">{travelDate}</div>
-                <div className="text-sm text-[#212529]">{travelDay}</div>
+                <div className="font-semibold text-[#0C2545]">{travelDate} ({travelDay})</div>
               </button>
               
               {/* Travel Date Calendar */}
@@ -570,19 +592,24 @@ const SearchFlights = () => {
                   {renderCalendar(false)}
                 </div>
               )}
+              
+              {/* Error message */}
+              {errors.travelDate && (
+                <p className="text-red-500 text-xs mt-1">Please select travel date</p>
+              )}
             </div>
 
             {/* Return Date */}
-            <div className="min-w-[160px] relative" ref={returnCalendarRef}>
+            <div className={`min-w-[130px] relative ${errors.returnDate ? 'border-2 border-red-500 rounded-lg' : ''}`} ref={returnCalendarRef}>
               <label className="text-sm font-medium text-gray-700 mb-2 block">Return Date</label>
               <button 
                 onClick={() => {
                   setShowReturnDateCalendar(!showReturnDateCalendar);
+                  setErrors(prev => ({...prev, returnDate: false}));
                 }}
-                className="rounded-lg bg-[#F8F8F8] p-3 w-full text-left"
+                className="rounded-lg bg-[#F8F8F8] p-6 w-full text-left"
               >
-                <div className="font-semibold text-[#0C2545]">{returnDate}</div>
-                <div className="text-sm text-[#212529]">{returnDay}</div>
+                <div className="font-semibold text-[#0C2545]">{returnDate} ({returnDay})</div>
               </button>
               
               {/* Return Date Calendar */}
@@ -591,19 +618,24 @@ const SearchFlights = () => {
                   {renderCalendar(true)}
                 </div>
               )}
+              
+              {/* Error message */}
+              {errors.returnDate && (
+                <p className="text-red-500 text-xs mt-1">Please select return date</p>
+              )}
             </div>
 
             {/* Seats & Classes */}
-            <div className="min-w-[160px] relative" ref={seatsDropdownRef}>
+            <div className={`min-w-[220px] relative ${errors.seatsClass ? 'border-2 border-red-500 rounded-lg' : ''}`} ref={seatsDropdownRef}>
               <label className="text-sm font-medium text-gray-700 mb-2 block">Seats & Classes</label>
               <button 
                 onClick={() => {
                   setShowSeatsDropdown(!showSeatsDropdown);
+                  setErrors(prev => ({...prev, seatsClass: false}));
                 }}
-                className="rounded-lg bg-[#F8F8F8] p-3 w-full text-left"
+                className="rounded-lg bg-[#F8F8F8] p-6 w-full text-left"
               >
-                <div className="font-semibold text-[#0C2545]">{adults + children + infants} Passenger{adults + children + infants > 1 ? 's' : ''}</div>
-                <div className="text-sm text-[#212529]">{seatsClass}</div>
+                <div className="font-semibold text-[#0C2545]">{adults + children + infants} Passenger{adults + children + infants > 1 ? 's' : ''} ({seatsClass})</div>
               </button>
               
               {/* Seats Dropdown */}
@@ -681,7 +713,10 @@ const SearchFlights = () => {
                               type="radio"
                               name="seatClass"
                               checked={seatsClass === cls}
-                              onChange={() => setSeatsClass(cls)}
+                              onChange={() => {
+                                setSeatsClass(cls);
+                                setErrors(prev => ({...prev, seatsClass: false}));
+                              }}
                               className="w-4 h-4 text-blue-600 border-2 border-gray-300 focus:ring-blue-500"
                             />
                             <span className="ml-3 text-sm font-medium text-gray-700">{cls}</span>
@@ -692,19 +727,24 @@ const SearchFlights = () => {
                   </div>
                 </div>
               )}
+              
+              {/* Error message */}
+              {errors.seatsClass && (
+                <p className="text-red-500 text-xs mt-1">Please select seat class</p>
+              )}
             </div>
 
             {/* Travel Type */}
-            <div className="min-w-[160px] relative" ref={travelTypeDropdownRef}>
+            <div className={`min-w-[120px] relative ${errors.travelType ? 'border-2 border-red-500 rounded-lg' : ''}`} ref={travelTypeDropdownRef}>
               <label className="text-sm font-medium text-gray-700 mb-2 block">Travel Type</label>
               <button 
                 onClick={() => {
                   setShowTravelTypeDropdown(!showTravelTypeDropdown);
+                  setErrors(prev => ({...prev, travelType: false}));
                 }}
-                className="rounded-lg bg-[#F8F8F8] p-3 w-full text-left"
+                className="rounded-lg bg-[#F8F8F8] ml-2 p-6 w-full text-left"
               >
-                <div className="font-semibold text-[#0C2545]">{travelType}</div>
-                <div className="text-sm text-[#212529]">{seatsClass}</div>
+                <div className="font-semibold text-[#0C2545]">{travelType}({seatsClass})</div>
               </button>
               
               {/* Travel Type Dropdown */}
@@ -721,7 +761,10 @@ const SearchFlights = () => {
                           name="travelType"
                           value={type}
                           checked={travelType === type}
-                          onChange={() => setTravelType(type)}
+                          onChange={() => {
+                            setTravelType(type);
+                            setErrors(prev => ({...prev, travelType: false}));
+                          }}
                           className="w-4 h-4 text-blue-600 border-2 border-gray-300 focus:ring-blue-500"
                         />
                         <span className="ml-3 text-sm font-medium text-gray-700">{type}</span>
@@ -730,13 +773,21 @@ const SearchFlights = () => {
                   </div>
                 </div>
               )}
+              
+              {/* Error message */}
+              {errors.travelType && (
+                <p className="text-red-500 text-xs mt-1">Please select travel type</p>
+              )}
             </div>
 
           </div>
           
           {/* Search Button */}
           <div className="mt-6 flex justify-end">
-            <Button className="bg-orange-500 hover:bg-white hover:text-orange-500 border hover:border-orange-500 text-white px-8 py-3 text-lg font-semibold">
+            <Button 
+              className="bg-orange-500 hover:bg-white hover:text-orange-500 border hover:border-orange-500 text-white px-8 py-3 text-lg font-semibold"
+              onClick={handleSearch}
+            >
               <Search className="w-4 h-4 mr-2" /> Search Flights
             </Button>
           </div>
@@ -770,9 +821,12 @@ const SearchFlights = () => {
             <FiltersContent />
           </div>
 
-          <div className="flex-1 space-y-4 z-0">
-            {[...Array(6)].map((_, i) => <FlightCard key={i} />)}
-          </div>
+          {/* Conditionally show flight cards only after search */}
+          {searchPerformed ? (
+            <div className="flex-1 space-y-4 z-0">
+              {[...Array(6)].map((_, i) => <FlightCard key={i} />)}
+            </div>
+          ) : null}
         </div>
       </div>
     </div>
