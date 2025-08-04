@@ -635,7 +635,7 @@ const SearchFlights = () => {
                 }}
                 className="rounded-lg bg-[#F8F8F8] p-6 w-full text-left"
               >
-                <div className="font-semibold text-[#0C2545]">{adults + children + infants} Passenger{adults + children + infants > 1 ? 's' : ''} ({seatsClass})</div>
+                <div className="font-semibold text-[#0C2545]">{adults + children + infants} seat{adults + children + infants > 1 ? 's' : ''} ({seatsClass})</div>
               </button>
               
               {/* Seats Dropdown */}

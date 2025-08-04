@@ -19,9 +19,55 @@ const SoarFareSupport = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
+    
+    try {
+      console.log('Sending request with data:', {
+        name: `${formData.firstName} ${formData.lastName}`.trim(),
+        email: formData.email,
+        msg: formData.message
+      });
+
+      const response = await fetch('/api/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: `${formData.firstName} ${formData.lastName}`.trim(),
+          email: formData.email,
+          msg: formData.message
+        }),
+      });
+
+      const data = await response.json().catch(() => ({}));
+      
+      console.log('API Response:', {
+        status: response.status,
+        statusText: response.statusText,
+        data
+      });
+      
+      if (response.ok) {
+        // Reset form on successful submission
+        setFormData({
+          firstName: '',
+          lastName: '',
+          email: '',
+          subject: '',
+          message: ''
+        });
+        alert('Message sent successfully!');
+      } else {
+        const errorMessage = data.message || data.error || 'Failed to send message';
+        console.error('API Error:', errorMessage);
+        throw new Error(errorMessage);
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      alert(`Failed to send message. ${error instanceof Error ? error.message : 'Please try again later.'}`);
+    }
   };
 
   return (
@@ -159,9 +205,10 @@ const SoarFareSupport = () => {
               {/* Submit Button */}
               <div className="pt-4">
                 <button
-                  type="button"
-                  onClick={() => console.log('Form submitted:', formData)}
+                  type="submit"
+                  onClick={handleSubmit}
                   className="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-8 py-3 rounded-xl transition-colors duration-200"
+                  disabled={!formData.firstName || !formData.email || !formData.message}
                 >
                   Send Message
                 </button>

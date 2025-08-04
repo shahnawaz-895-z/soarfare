@@ -1,7 +1,54 @@
+import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 const Footer = () => {
+  const [email, setEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [subscriptionStatus, setSubscriptionStatus] = useState<{success?: boolean; message: string} | null>(null);
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!email) {
+      setSubscriptionStatus({ success: false, message: 'Please enter your email' });
+      return;
+    }
+
+    setIsSubmitting(true);
+    setSubscriptionStatus(null);
+
+    try {
+      const response = await fetch('/api/api/newsletter', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        setEmail('');
+        setSubscriptionStatus({ success: true, message: 'Thank you for subscribing!' });
+      } else {
+        throw new Error(data.message || 'Failed to subscribe');
+      }
+    } catch (error) {
+      console.error('Subscription error:', error);
+      setSubscriptionStatus({ 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Failed to subscribe. Please try again.' 
+      });
+    } finally {
+      setIsSubmitting(false);
+      // Clear status after 5 seconds
+      if (subscriptionStatus?.success) {
+        setTimeout(() => setSubscriptionStatus(null), 5000);
+      }
+    }
+  };
   return (
     <footer className="relative text-primary-foreground overflow-hidden">
       {/* Background Image */}
@@ -22,15 +69,32 @@ const Footer = () => {
                   Get your weekly travel guide
                 </h2>
               </div>
-              <div className="flex flex-col sm:flex-row gap-3 w-full lg:min-w-fit lg:w-auto max-w-md lg:max-w-none mx-auto lg:mx-0">
-                <Input 
-                  placeholder="Your email here..." 
-                  className="bg-primary-foreground text-gray-900 placeholder:text-gray-500 border-0 w-full sm:min-w-[200px] md:min-w-[280px] h-10 sm:h-12 text-sm sm:text-base"
-                />
-                <Button className="bg-orange-500 hover:bg-orange-600 text-white px-4 sm:px-6 py-2 sm:py-3 whitespace-nowrap w-full sm:w-auto h-10 sm:h-12 text-sm sm:text-base font-medium">
-                  Subscribe Now
-                </Button>
-              </div>
+              <form onSubmit={handleSubscribe} >
+                <div className="flex flex-col sm:flex-row gap-3 w-full lg:min-w-fit lg:w-auto max-w-md lg:max-w-none mx-auto lg:mx-0">
+                  <Input 
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Your email here..." 
+                    className="bg-primary-foreground text-gray-900 placeholder:text-gray-500 border-0 w-full sm:min-w-[200px] md:min-w-[280px] h-10 sm:h-12 text-sm sm:text-base"
+                    required
+                  />
+                  <Button 
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="bg-orange-500 hover:bg-orange-600 text-white px-4 sm:px-6 py-2 sm:py-3 whitespace-nowrap w-full sm:w-auto h-10 sm:h-12 text-sm sm:text-base font-medium disabled:opacity-70"
+                  >
+                    {isSubmitting ? 'Subscribing...' : 'Subscribe Now'}
+                  </Button>
+                </div>
+                {subscriptionStatus && (
+                  <p className={`mt-2 text-sm text-center sm:text-left ${
+                    subscriptionStatus.success ? 'text-green-400' : 'text-red-400'
+                  }`}>
+                    {subscriptionStatus.message}
+                  </p>
+                )}
+              </form>
             </div>
           </div>
         </div>
