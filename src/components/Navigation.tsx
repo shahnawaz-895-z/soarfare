@@ -12,6 +12,7 @@ const Navigation = () => {
     { label: "About Us", href: "/about" },
     { label: "Subscription", href: "/subscription" },
     { label: "Search Flights", href: "/searchflights" },
+    { label: "Blog", href: "/blog" },
     { label: "FAQ's", href: "/faq" },
     { label: "Support", href: "/support" },
   ];
