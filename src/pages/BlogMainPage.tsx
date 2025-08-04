@@ -2,7 +2,6 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import BlogMainSection from '@/components/blogsMain';
 import Navigation from '@/components/Navigation';
-import Footer from '@/components/footer';
 
 const BlogMainPage = () => {
   const navigate = useNavigate();
@@ -22,7 +21,6 @@ const BlogMainPage = () => {
         <BlogMainSection />
       </main>
       
-      <Footer />
     </div>
   );
 };

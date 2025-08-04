@@ -15,6 +15,7 @@ import Subscriptions from "./pages/Subscriptions";
 import FaqPage from "./pages/FaqPage";
 import Support from "./pages/Support";
 import BlogMainPage from "./pages/BlogMainPage";
+import BlogDetailPage from "./pages/BlogDetailPage";
 import Footer from "./components/footer";
 import Footer2 from "./components/footer2";
 import ForgotPassword from "./pages/forgotpassword";
@@ -42,6 +43,7 @@ const App = () => (
           <Route path="/searchflights" element={<SearchFlights />} />
           <Route path="/subscription" element={<Subscriptions />} />
           <Route path="/blog" element={<BlogMainPage />} />
+          <Route path="/blog/:slug" element={<BlogDetailPage />} />
           <Route path="/faq" element={<FaqPage />} />
           <Route path="/support" element={<Support />} />
           <Route path="*" element={<NotFound />} />

@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { CalendarDays } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function BlogMainSection() {
   const [blogs, setBlogs] = useState([]);
@@ -59,9 +60,12 @@ export default function BlogMainSection() {
 
               <div className="mt-auto pt-3 border-t">
                 <div className="flex justify-between items-center text-sm font-barlow text-gray-600">
-                  <a href={`/blog/${blog.slug}`} className="text-blue-500 font-medium hover:underline flex items-center gap-1">
+                  <Link 
+                    to={`/blog/${encodeURIComponent(blog.slug)}`} 
+                    className="text-blue-500 font-medium hover:underline flex items-center gap-1"
+                  >
                     Read More →
-                  </a>
+                  </Link>
                   <div className="flex items-center gap-1">
                     <CalendarDays className="w-4 h-4" />
                     <span>{new Date(blog.created_at).toLocaleDateString("en-US", { day: "2-digit", month: "short", year: "numeric" })}</span>
@@ -73,7 +77,7 @@ export default function BlogMainSection() {
         ))}
       </div>
 
-      {/* Pagination removed as per requirements */}
+    
     </section>
   );
 }
