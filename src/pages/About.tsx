@@ -109,7 +109,7 @@ const AboutUs = () => {
 
             {/* CTA Button */}
             <Link to="/subscription">
-            <Button className="bg-orange-500 hover:bg-white border hover:border-orange-500 hover:text-orange-500 text-white px-8 py-3 font-poppins text-lg rounded-lg">
+            <Button className="bg-orange-500 hover:bg-white border hover:border-orange-500 hover:text-orange-500 text-white mt-12 px-8 py-3 font-poppins text-lg rounded-lg">
               Subscribe Now
             </Button>
             </Link>

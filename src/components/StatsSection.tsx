@@ -74,7 +74,7 @@ const StatsSection = () => {
 
             {/* Stats */}
             <div className="grid grid-cols-2 gap-3 sm:gap-4 max-w-xs sm:max-w-sm mx-auto lg:mx-0">
-              <div className="text-center lg:text-left bg-white/50 rounded-lg p-2.5 sm:p-3 shadow-sm">
+              <div className="text-center lg:text-left bg-background rounded-lg p-2.5 sm:p-3">
                 <div className="text-xl sm:text-2xl lg:text-3xl font-poppins font-bold text-[#0C2545] mb-1">
                   10K+
                 </div>
@@ -82,7 +82,7 @@ const StatsSection = () => {
                   Worldwide User
                 </div>
               </div>
-              <div className="text-center lg:text-left bg-white/50 rounded-lg p-2.5 sm:p-3 shadow-sm">
+              <div className="text-center lg:text-left bg-white/50 rounded-lg p-2.5 sm:p-3 ">
                 <div className="text-xl sm:text-2xl lg:text-3xl font-poppins font-bold text-[#0C2545] mb-1">
                   2500+
                 </div>

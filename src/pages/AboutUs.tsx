@@ -84,7 +84,7 @@ const AboutUs = () => {
             </div>
 
             {/* CTA Button */}
-            <Button className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 text-lg rounded-lg">
+            <Button className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-2 mt-2 text-lg rounded-lg">
               Subscribe Now
             </Button>
           </div>

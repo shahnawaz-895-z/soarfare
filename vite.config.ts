@@ -7,7 +7,7 @@ import { componentTagger } from "lovable-tagger";
 export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
-    port: 8080,
+     port: 9098,
     proxy: {
       '/api': {
         target: 'https://dev.soarfare.com',
