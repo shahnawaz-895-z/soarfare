@@ -730,7 +730,7 @@ const SearchFlights = () => {
               
               {/* Error message */}
               {errors.seatsClass && (
-                <p className="text-red-500 text-xs mt-1">Please select seat class</p>
+                <p className="text-red-500 text-xs mt-1">Please select seat&class</p>
               )}
             </div>
 
