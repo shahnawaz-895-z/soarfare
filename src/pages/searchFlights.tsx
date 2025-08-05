@@ -489,6 +489,7 @@ const SearchFlights = () => {
   };
 
   const FiltersContent = () => (
+    <div>
     <div className="w-80 space-y-6">
       {/* Filter by price */}
       <div className="bg-white rounded-lg p-4 border shadow-xl">
@@ -575,6 +576,7 @@ const SearchFlights = () => {
         </div>
       ))}
     </div>
+   </div>
   );
 
   return (
@@ -995,153 +997,154 @@ const SearchFlights = () => {
                 <p>No flights found. Please try different search criteria.</p>
               </div>
             )}
+
+            {/* Flight Results */}
+            {searchError && (
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                {searchError}
+              </div>
+            )}
+
+            {searchResults.length > 0 && (
+              <div className="space-y-6">
+                <h2 className="text-2xl font-bold text-gray-800 mb-6">Available Flights ({Math.min(searchResults.length, 5)} of {searchResults.length})</h2>
+                
+                {searchResults.slice(0, 5).map((flight, index) => {
+                  // Helper function to get nested property safely
+                  const getFlightProperty = (obj, path, defaultValue = '') => {
+                    return path.split('.').reduce((current, key) => current?.[key], obj) || defaultValue;
+                  };
+
+                  // Extract flight data with multiple possible field names
+                  const airline = flight.airline || flight.carrier || flight.airlineName || 'Unknown Airline';
+                  const flightNumber = flight.flight_number || flight.flightNumber || flight.number || 'N/A';
+                  const departureTime = flight.departure_time || flight.departureTime || flight.depart_time || '--:--';
+                  const arrivalTime = flight.arrival_time || flight.arrivalTime || flight.arrive_time || '--:--';
+                  const duration = flight.duration || flight.flight_duration || flight.travel_time || '01h 05minute';
+                  const price = flight.price || flight.total_price || flight.fare || flight.amount || 300;
+                  const stops = flight.stops || flight.layovers || flight.connections || 0;
+                  
+                  // Origin and destination handling
+                  const originCode = getFlightProperty(flight, 'origin.iata_code') || 
+                                    getFlightProperty(flight, 'origin.code') || 
+                                    flight.from || 
+                                    selectedFromAirport?.iata || '---';
+                  const originName = getFlightProperty(flight, 'origin.name') || 
+                                    getFlightProperty(flight, 'origin.city') || 
+                                    selectedFromAirport?.city || 'Origin';
+                  const originFullName = getFlightProperty(flight, 'origin.airport_name') || 
+                                        selectedFromAirport?.name || 'Airport';
+                  
+                  const destCode = getFlightProperty(flight, 'destination.iata_code') || 
+                                  getFlightProperty(flight, 'destination.code') || 
+                                  flight.to || 
+                                  selectedToAirport?.iata || '---';
+                  const destName = getFlightProperty(flight, 'destination.name') || 
+                                  getFlightProperty(flight, 'destination.city') || 
+                                  selectedToAirport?.city || 'Destination';
+                  const destFullName = getFlightProperty(flight, 'destination.airport_name') || 
+                                      selectedToAirport?.name || 'Airport';
+
+                  return (
+                    <div key={index} className="bg-white rounded-lg border border-[#DDDDDD] max-w-5xl mx-auto shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md hover:border-gray-400 hover:scale-[1.01] transform hover:bg-gray-50">
+                      <div className="flex flex-col md:flex-row items-center justify-between">
+                        {/* Left section - Airline logo and show more */}
+                        <div className="flex flex-col items-start w-24 md:w-32 p-4 md:p-6">
+                          <div className="w-20 md:w-24 h-10 md:h-12 bg-gray-200 rounded mb-2 flex items-center justify-center">
+                            {flight.airline_logo ? (
+                              <img src={flight.airline_logo} alt={airline} className="w-full h-full object-contain" />
+                            ) : (
+                              <span className="text-xs text-gray-500 font-medium">{airline.substring(0, 8)}</span>
+                            )}
+                          </div>
+                          <button className="text-xs text-gray-500 hover:underline flex items-center">
+                            Show more 
+                            <ChevronDown className="w-3 h-3 ml-1" />
+                          </button>
+                        </div>
+
+                        {/* Middle section - Flight details */}
+                        <div className="flex flex-col md:flex-row items-center justify-center flex-1 py-4 md:py-6 px-4">
+                          {/* From section */}
+                          <div className="text-left md:text-left text-center min-w-[150px] md:min-w-[180px] mb-4 md:mb-0">
+                            <div className="text-xs text-gray-500 mb-1">From</div>
+                            <div className="font-semibold text-xl md:text-2xl text-gray-900 mb-1">{originName}</div>
+                            <div className="text-sm text-gray-600">{originCode}, {originFullName}</div>
+                            {departureTime !== '--:--' && (
+                              <div className="text-sm font-medium text-gray-800 mt-1">{departureTime}</div>
+                            )}
+                          </div>
+
+                          {/* Flight path with arrow */}
+                          <div className="flex flex-col items-center mx-4 md:mx-8 mb-4 md:mb-0">
+                            <div
+                              className="w-12 md:w-14 h-12 md:h-14 rounded-full bg-orange-500 flex items-center justify-center mb-2 border mx-auto shadow-2xl"
+                              style={{ boxShadow: '0 8px 20px rgba(0, 0, 0, 0.4)' }}
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="w-6 md:w-7 h-6 md:h-7 text-white drop-shadow-md"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                strokeWidth="2.5"
+                              >
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                              </svg>
+                            </div>
+                            <div className="text-sm font-medium text-gray-900 mb-1">
+                              {stops === 0 ? 'Non-stop' : `${stops} stop${stops > 1 ? 's' : ''}`}
+                            </div>
+                            <div className="text-xs text-gray-500">{duration}</div>
+                            {flightNumber !== 'N/A' && (
+                              <div className="text-xs text-gray-400 mt-1">Flight {flightNumber}</div>
+                            )}
+                          </div>
+
+                          {/* To section */}
+                          <div className="text-left md:text-left text-center min-w-[150px] md:min-w-[180px] mb-4 md:mb-0">
+                            <div className="text-xs text-gray-500 mb-1">To</div>
+                            <div className="font-semibold text-xl md:text-2xl text-gray-900 mb-1">{destName}</div>
+                            <div className="text-sm text-gray-600">{destCode}, {destFullName}</div>
+                            {arrivalTime !== '--:--' && (
+                              <div className="text-sm font-medium text-gray-800 mt-1">{arrivalTime}</div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Right section - Price and booking */}
+                        <div className="bg-orange-100 text-center w-full md:w-48 flex flex-col justify-center py-6 md:py-8 px-6 md:-mr-px md:-my-px md:rounded-r-lg">
+                          <div className="font-semi text-xl md:text-2xl mb-4 text-gray-900">
+                            {flight.currency && flight.currency !== 'USD' ? (
+                              <>
+                                {flight.currency} {price}
+                                <div className="text-sm text-gray-600">${Math.round(price * 0.85)}</div>
+                              </>
+                            ) : (
+                              `${price} Points`
+                            )}
+                          </div>
+                          <button className="bg-orange-500 hover:bg-white hover:text-orange-500 border hover:border-orange-500 text-white font-medium px-4 py-2 rounded-lg transition-colors">
+                            Book Now
+                          </button>
+                          {(flight.class || flight.cabin_class || seatsClass) && (
+                            <div className="text-xs text-gray-600 mt-2">
+                              {flight.class || flight.cabin_class || seatsClass}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
       </div>
 
       {/* Search Results Section */}
-      <div className="container mx-auto px-4 py-8">
-        {searchError && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            {searchError}
-          </div>
-        )}
-
-        {searchResults.length > 0 && (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">Available Flights</h2>
-            
-            {searchResults.map((flight, index) => {
-              // Helper function to get nested property safely
-              const getFlightProperty = (obj, path, defaultValue = '') => {
-                return path.split('.').reduce((current, key) => current?.[key], obj) || defaultValue;
-              };
-
-              // Extract flight data with multiple possible field names
-              const airline = flight.airline || flight.carrier || flight.airlineName || 'Unknown Airline';
-              const flightNumber = flight.flight_number || flight.flightNumber || flight.number || 'N/A';
-              const departureTime = flight.departure_time || flight.departureTime || flight.depart_time || '--:--';
-              const arrivalTime = flight.arrival_time || flight.arrivalTime || flight.arrive_time || '--:--';
-              const duration = flight.duration || flight.flight_duration || flight.travel_time || '01h 05minute';
-              const price = flight.price || flight.total_price || flight.fare || flight.amount || 300;
-              const stops = flight.stops || flight.layovers || flight.connections || 0;
-              
-              // Origin and destination handling
-              const originCode = getFlightProperty(flight, 'origin.iata_code') || 
-                                getFlightProperty(flight, 'origin.code') || 
-                                flight.from || 
-                                selectedFromAirport?.iata || '---';
-              const originName = getFlightProperty(flight, 'origin.name') || 
-                                getFlightProperty(flight, 'origin.city') || 
-                                selectedFromAirport?.city || 'Origin';
-              const originFullName = getFlightProperty(flight, 'origin.airport_name') || 
-                                    selectedFromAirport?.name || 'Airport';
-              
-              const destCode = getFlightProperty(flight, 'destination.iata_code') || 
-                              getFlightProperty(flight, 'destination.code') || 
-                              flight.to || 
-                              selectedToAirport?.iata || '---';
-              const destName = getFlightProperty(flight, 'destination.name') || 
-                              getFlightProperty(flight, 'destination.city') || 
-                              selectedToAirport?.city || 'Destination';
-              const destFullName = getFlightProperty(flight, 'destination.airport_name') || 
-                                  selectedToAirport?.name || 'Airport';
-
-              return (
-                <div key={index} className="bg-white rounded-lg border border-[#DDDDDD] max-w-5xl mx-auto shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md hover:border-gray-400 hover:scale-[1.01] transform hover:bg-gray-50">
-                  <div className="flex flex-col md:flex-row items-center justify-between">
-                    {/* Left section - Airline logo and show more */}
-                    <div className="flex flex-col items-start w-24 md:w-32 p-4 md:p-6">
-                      <div className="w-20 md:w-24 h-10 md:h-12 bg-gray-200 rounded mb-2 flex items-center justify-center">
-                        {flight.airline_logo ? (
-                          <img src={flight.airline_logo} alt={airline} className="w-full h-full object-contain" />
-                        ) : (
-                          <span className="text-xs text-gray-500 font-medium">{airline.substring(0, 8)}</span>
-                        )}
-                      </div>
-                      <button className="text-xs text-gray-500 hover:underline flex items-center">
-                        Show more 
-                        <ChevronDown className="w-3 h-3 ml-1" />
-                      </button>
-                    </div>
-
-                    {/* Middle section - Flight details */}
-                    <div className="flex flex-col md:flex-row items-center justify-center flex-1 py-4 md:py-6 px-4">
-                      {/* From section */}
-                      <div className="text-left md:text-left text-center min-w-[150px] md:min-w-[180px] mb-4 md:mb-0">
-                        <div className="text-xs text-gray-500 mb-1">From</div>
-                        <div className="font-semibold text-xl md:text-2xl text-gray-900 mb-1">{originName}</div>
-                        <div className="text-sm text-gray-600">{originCode}, {originFullName}</div>
-                        {departureTime !== '--:--' && (
-                          <div className="text-sm font-medium text-gray-800 mt-1">{departureTime}</div>
-                        )}
-                      </div>
-
-                      {/* Flight path with arrow */}
-                      <div className="flex flex-col items-center mx-4 md:mx-8 mb-4 md:mb-0">
-                        <div
-                          className="w-12 md:w-14 h-12 md:h-14 rounded-full bg-orange-500 flex items-center justify-center mb-2 border mx-auto shadow-2xl"
-                          style={{ boxShadow: '0 8px 20px rgba(0, 0, 0, 0.4)' }}
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="w-6 md:w-7 h-6 md:h-7 text-white drop-shadow-md"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            strokeWidth="2.5"
-                          >
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                          </svg>
-                        </div>
-                        <div className="text-sm font-medium text-gray-900 mb-1">
-                          {stops === 0 ? 'Non-stop' : `${stops} stop${stops > 1 ? 's' : ''}`}
-                        </div>
-                        <div className="text-xs text-gray-500">{duration}</div>
-                        {flightNumber !== 'N/A' && (
-                          <div className="text-xs text-gray-400 mt-1">Flight {flightNumber}</div>
-                        )}
-                      </div>
-
-                      {/* To section */}
-                      <div className="text-left md:text-left text-center min-w-[150px] md:min-w-[180px] mb-4 md:mb-0">
-                        <div className="text-xs text-gray-500 mb-1">To</div>
-                        <div className="font-semibold text-xl md:text-2xl text-gray-900 mb-1">{destName}</div>
-                        <div className="text-sm text-gray-600">{destCode}, {destFullName}</div>
-                        {arrivalTime !== '--:--' && (
-                          <div className="text-sm font-medium text-gray-800 mt-1">{arrivalTime}</div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Right section - Price and booking */}
-                    <div className="bg-orange-100 text-center w-full md:w-48 flex flex-col justify-center py-6 md:py-8 px-6 md:-mr-px md:-my-px md:rounded-r-lg">
-                      <div className="font-semi text-xl md:text-2xl mb-4 text-gray-900">
-                        {flight.currency && flight.currency !== 'USD' ? (
-                          <>
-                            {flight.currency} {price}
-                            <div className="text-sm text-gray-600">${Math.round(price * 0.85)}</div>
-                          </>
-                        ) : (
-                          `${price} Points`
-                        )}
-                      </div>
-                      <button className="bg-orange-500 hover:bg-white hover:text-orange-500 border hover:border-orange-500 text-white font-medium px-4 py-2 rounded-lg transition-colors">
-                        Book Now
-                      </button>
-                      {(flight.class || flight.cabin_class || seatsClass) && (
-                        <div className="text-xs text-gray-600 mt-2">
-                          {flight.class || flight.cabin_class || seatsClass}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
+     
     </div>
   );
 };
