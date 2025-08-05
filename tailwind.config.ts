@@ -18,10 +18,12 @@ export default {
       }
     },
     extend: {
+      
       fontFamily: {
         poppins: ['Poppins', 'sans-serif'],
 		barlow: ['Barlow', 'sans-serif'],
 		manrope: ['Manrope', 'sans-serif'],
+    inter: ['Inter', 'sans-serif'],
       },
       colors: {
         border: 'hsl(var(--border))',
