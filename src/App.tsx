@@ -16,9 +16,10 @@ import FaqPage from "./pages/FaqPage";
 import Support from "./pages/Support";
 import BlogMainPage from "./pages/BlogMainPage";
 import BlogDetailPage from "./pages/BlogDetailPage";
+import ForgotPassword from "./pages/forgotpassword";
 import Footer from "./components/footer";
 import Footer2 from "./components/footer2";
-import ForgotPassword from "./pages/forgotpassword";
+import Dashboard from "./pages/Dashboard"; // ✅ New import
 
 const queryClient = new QueryClient();
 
@@ -26,6 +27,10 @@ const FooterSwitcher = () => {
   const location = useLocation();
   const path = location.pathname;
 
+  // ❌ No footer for /dashboard
+  if (path === "/dashboard") return null;
+
+  // ✅ Use Footer2 for /faq, Footer otherwise
   return path === "/faq" ? <Footer2 /> : <Footer />;
 };
 
@@ -46,8 +51,9 @@ const App = () => (
           <Route path="/blog/:slug" element={<BlogDetailPage />} />
           <Route path="/faq" element={<FaqPage />} />
           <Route path="/support" element={<Support />} />
-          <Route path="*" element={<NotFound />} />
           <Route path="/forgotpassword" element={<ForgotPassword />} />
+          <Route path="/dashboard" element={<Dashboard />} /> {/* ✅ New route */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
 
         {/* Conditionally render footer */}
