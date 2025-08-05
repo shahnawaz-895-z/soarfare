@@ -306,7 +306,103 @@ const SearchFlights = () => {
       }
 
       const data = await response.json();
-      setSearchResults(Array.isArray(data) ? data : []);
+      console.log('=== FLIGHT SEARCH DEBUG ===');
+      console.log('API Response Status:', response.status);
+      console.log('API Response Data:', data);
+      console.log('=== END DEBUG ===');
+      
+      // Extract flights from the nested API response structure
+      let flights = [];
+      
+      if (data && data.success && data.flights && data.flights.AirSearchResponse) {
+        const fareItineraries = data.flights.AirSearchResponse.AirSearchResult?.FareItineraries;
+        
+        if (Array.isArray(fareItineraries)) {
+          // Transform the complex API structure into simplified flight objects
+          flights = fareItineraries.map((item, index) => {
+            const fareItinerary = item.FareItinerary;
+            const flightSegment = fareItinerary.OriginDestinationOptions?.[0]?.OriginDestinationOption?.[0]?.FlightSegment;
+            const totalFare = fareItinerary.AirItineraryFareInfo?.ItinTotalFares?.TotalFare;
+            const fareBreakdown = fareItinerary.AirItineraryFareInfo?.FareBreakdown?.[0];
+            const seatsRemaining = fareItinerary.OriginDestinationOptions?.[0]?.OriginDestinationOption?.[0]?.SeatsRemaining;
+            const totalStops = fareItinerary.OriginDestinationOptions?.[0]?.TotalStops || 0;
+            
+            // Calculate duration in hours and minutes
+            const durationMinutes = parseInt(flightSegment?.JourneyDuration || '0');
+            const hours = Math.floor(durationMinutes / 60);
+            const minutes = durationMinutes % 60;
+            const durationFormatted = `${hours.toString().padStart(2, '0')}h ${minutes.toString().padStart(2, '0')}m`;
+            
+            return {
+              // Basic flight info
+              airline: flightSegment?.MarketingAirlineName || 'Unknown Airline',
+              airlineCode: flightSegment?.MarketingAirlineCode || '',
+              flight_number: flightSegment?.FlightNumber || 'N/A',
+              aircraft: flightSegment?.OperatingAirline?.Equipment || '',
+              
+              // Times and dates
+              departure_time: flightSegment?.DepartureDateTime ? 
+                new Date(flightSegment.DepartureDateTime).toLocaleTimeString('en-US', { 
+                  hour: '2-digit', 
+                  minute: '2-digit', 
+                  hour12: false 
+                }) : '--:--',
+              arrival_time: flightSegment?.ArrivalDateTime ? 
+                new Date(flightSegment.ArrivalDateTime).toLocaleTimeString('en-US', { 
+                  hour: '2-digit', 
+                  minute: '2-digit', 
+                  hour12: false 
+                }) : '--:--',
+              departure_date: flightSegment?.DepartureDateTime ? 
+                new Date(flightSegment.DepartureDateTime).toLocaleDateString() : '',
+              arrival_date: flightSegment?.ArrivalDateTime ? 
+                new Date(flightSegment.ArrivalDateTime).toLocaleDateString() : '',
+              
+              // Duration and stops
+              duration: durationFormatted,
+              stops: totalStops,
+              
+              // Origin and destination
+              origin: {
+                iata_code: flightSegment?.DepartureAirportLocationCode || '',
+                name: data.airports?.[flightSegment?.DepartureAirportLocationCode]?.name || '',
+                city: data.airports?.[flightSegment?.DepartureAirportLocationCode]?.city || '',
+                country: data.airports?.[flightSegment?.DepartureAirportLocationCode]?.country || ''
+              },
+              destination: {
+                iata_code: flightSegment?.ArrivalAirportLocationCode || '',
+                name: data.airports?.[flightSegment?.ArrivalAirportLocationCode]?.name || '',
+                city: data.airports?.[flightSegment?.ArrivalAirportLocationCode]?.city || '',
+                country: data.airports?.[flightSegment?.ArrivalAirportLocationCode]?.country || ''
+              },
+              
+              // Pricing
+              price: parseFloat(totalFare?.Amount || '0'),
+              currency: totalFare?.CurrencyCode || 'USD',
+              base_fare: parseFloat(fareItinerary.AirItineraryFareInfo?.ItinTotalFares?.BaseFare?.Amount || '0'),
+              taxes: parseFloat(fareItinerary.AirItineraryFareInfo?.ItinTotalFares?.TotalTax?.Amount || '0'),
+              
+              // Additional info
+              cabin_class: flightSegment?.CabinClassCode || 'Y',
+              class: flightSegment?.CabinClassText || 'Economy',
+              refundable: fareItinerary.AirItineraryFareInfo?.IsRefundable === 'Yes',
+              seats_available: seatsRemaining?.Number || 0,
+              baggage: fareBreakdown?.Baggage?.[0] || '',
+              cabin_baggage: fareBreakdown?.CabinBaggage?.[0] || '',
+              
+              // Meal and other services
+              meal_service: flightSegment?.MealCode ? true : false,
+              
+              // Raw data for debugging
+              _raw: item
+            };
+          });
+        }
+      }
+      
+      console.log('Processed flights:', flights);
+      console.log('Flights count:', flights.length);
+      setSearchResults(flights);
       
     } catch (error) {
       console.error('Error searching flights:', error);
@@ -915,64 +1011,134 @@ const SearchFlights = () => {
           <div className="space-y-6">
             <h2 className="text-2xl font-bold text-gray-800 mb-6">Available Flights</h2>
             
-            {searchResults.map((flight, index) => (
-              <div key={index} className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow">
-                <div className="p-6">
-                  <div className="flex flex-col md:flex-row md:items-center justify-between">
-                    {/* Airline and Flight Number */}
-                    <div className="flex items-center mb-4 md:mb-0">
-                      <div className="bg-blue-50 p-3 rounded-lg mr-4">
-                        <Plane className="h-8 w-8 text-blue-600" />
+            {searchResults.map((flight, index) => {
+              // Helper function to get nested property safely
+              const getFlightProperty = (obj, path, defaultValue = '') => {
+                return path.split('.').reduce((current, key) => current?.[key], obj) || defaultValue;
+              };
+
+              // Extract flight data with multiple possible field names
+              const airline = flight.airline || flight.carrier || flight.airlineName || 'Unknown Airline';
+              const flightNumber = flight.flight_number || flight.flightNumber || flight.number || 'N/A';
+              const departureTime = flight.departure_time || flight.departureTime || flight.depart_time || '--:--';
+              const arrivalTime = flight.arrival_time || flight.arrivalTime || flight.arrive_time || '--:--';
+              const duration = flight.duration || flight.flight_duration || flight.travel_time || '01h 05minute';
+              const price = flight.price || flight.total_price || flight.fare || flight.amount || 300;
+              const stops = flight.stops || flight.layovers || flight.connections || 0;
+              
+              // Origin and destination handling
+              const originCode = getFlightProperty(flight, 'origin.iata_code') || 
+                                getFlightProperty(flight, 'origin.code') || 
+                                flight.from || 
+                                selectedFromAirport?.iata || '---';
+              const originName = getFlightProperty(flight, 'origin.name') || 
+                                getFlightProperty(flight, 'origin.city') || 
+                                selectedFromAirport?.city || 'Origin';
+              const originFullName = getFlightProperty(flight, 'origin.airport_name') || 
+                                    selectedFromAirport?.name || 'Airport';
+              
+              const destCode = getFlightProperty(flight, 'destination.iata_code') || 
+                              getFlightProperty(flight, 'destination.code') || 
+                              flight.to || 
+                              selectedToAirport?.iata || '---';
+              const destName = getFlightProperty(flight, 'destination.name') || 
+                              getFlightProperty(flight, 'destination.city') || 
+                              selectedToAirport?.city || 'Destination';
+              const destFullName = getFlightProperty(flight, 'destination.airport_name') || 
+                                  selectedToAirport?.name || 'Airport';
+
+              return (
+                <div key={index} className="bg-white rounded-lg border border-[#DDDDDD] max-w-5xl mx-auto shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md hover:border-gray-400 hover:scale-[1.01] transform hover:bg-gray-50">
+                  <div className="flex flex-col md:flex-row items-center justify-between">
+                    {/* Left section - Airline logo and show more */}
+                    <div className="flex flex-col items-start w-24 md:w-32 p-4 md:p-6">
+                      <div className="w-20 md:w-24 h-10 md:h-12 bg-gray-200 rounded mb-2 flex items-center justify-center">
+                        {flight.airline_logo ? (
+                          <img src={flight.airline_logo} alt={airline} className="w-full h-full object-contain" />
+                        ) : (
+                          <span className="text-xs text-gray-500 font-medium">{airline.substring(0, 8)}</span>
+                        )}
                       </div>
-                      <div>
-                        <h3 className="font-semibold text-lg">
-                          {flight.airline || 'Unknown Airline'}
-                        </h3>
-                        <p className="text-sm text-gray-500">Flight #{flight.flight_number || 'N/A'}</p>
+                      <button className="text-xs text-gray-500 hover:underline flex items-center">
+                        Show more 
+                        <ChevronDown className="w-3 h-3 ml-1" />
+                      </button>
+                    </div>
+
+                    {/* Middle section - Flight details */}
+                    <div className="flex flex-col md:flex-row items-center justify-center flex-1 py-4 md:py-6 px-4">
+                      {/* From section */}
+                      <div className="text-left md:text-left text-center min-w-[150px] md:min-w-[180px] mb-4 md:mb-0">
+                        <div className="text-xs text-gray-500 mb-1">From</div>
+                        <div className="font-semibold text-xl md:text-2xl text-gray-900 mb-1">{originName}</div>
+                        <div className="text-sm text-gray-600">{originCode}, {originFullName}</div>
+                        {departureTime !== '--:--' && (
+                          <div className="text-sm font-medium text-gray-800 mt-1">{departureTime}</div>
+                        )}
+                      </div>
+
+                      {/* Flight path with arrow */}
+                      <div className="flex flex-col items-center mx-4 md:mx-8 mb-4 md:mb-0">
+                        <div
+                          className="w-12 md:w-14 h-12 md:h-14 rounded-full bg-orange-500 flex items-center justify-center mb-2 border mx-auto shadow-2xl"
+                          style={{ boxShadow: '0 8px 20px rgba(0, 0, 0, 0.4)' }}
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="w-6 md:w-7 h-6 md:h-7 text-white drop-shadow-md"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth="2.5"
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                          </svg>
+                        </div>
+                        <div className="text-sm font-medium text-gray-900 mb-1">
+                          {stops === 0 ? 'Non-stop' : `${stops} stop${stops > 1 ? 's' : ''}`}
+                        </div>
+                        <div className="text-xs text-gray-500">{duration}</div>
+                        {flightNumber !== 'N/A' && (
+                          <div className="text-xs text-gray-400 mt-1">Flight {flightNumber}</div>
+                        )}
+                      </div>
+
+                      {/* To section */}
+                      <div className="text-left md:text-left text-center min-w-[150px] md:min-w-[180px] mb-4 md:mb-0">
+                        <div className="text-xs text-gray-500 mb-1">To</div>
+                        <div className="font-semibold text-xl md:text-2xl text-gray-900 mb-1">{destName}</div>
+                        <div className="text-sm text-gray-600">{destCode}, {destFullName}</div>
+                        {arrivalTime !== '--:--' && (
+                          <div className="text-sm font-medium text-gray-800 mt-1">{arrivalTime}</div>
+                        )}
                       </div>
                     </div>
 
-                    {/* Departure */}
-                    <div className="text-center mb-4 md:mb-0">
-                      <p className="text-2xl font-bold">{flight.departure_time || '--:--'}</p>
-                      <p className="text-sm text-gray-500">
-                        {flight.origin?.iata_code || '---'} • {flight.origin?.name || 'Origin'}
-                      </p>
-                    </div>
-
-                    {/* Duration */}
-                    <div className="text-center mb-4 md:mb-0">
-                      <p className="text-sm text-gray-500">
-                        {flight.duration || '--h --m'}
-                      </p>
-                      <div className="w-24 h-px bg-gray-300 my-2 mx-auto"></div>
-                      <p className="text-xs text-gray-500">
-                        {flight.stops === 0 ? 'Non-stop' : `${flight.stops} stop${flight.stops > 1 ? 's' : ''}`}
-                      </p>
-                    </div>
-
-                    {/* Arrival */}
-                    <div className="text-center mb-4 md:mb-0">
-                      <p className="text-2xl font-bold">{flight.arrival_time || '--:--'}</p>
-                      <p className="text-sm text-gray-500">
-                        {flight.destination?.iata_code || '---'} • {flight.destination?.name || 'Destination'}
-                      </p>
-                    </div>
-
-                    {/* Price */}
-                    <div className="text-center">
-                      <p className="text-2xl font-bold text-orange-500">
-                        ${flight.price ? flight.price.toLocaleString() : '---'}
-                      </p>
-                      <p className="text-xs text-gray-500">per person</p>
-                      <Button className="mt-2 bg-orange-500 hover:bg-orange-600 text-white w-full">
-                        Select
-                      </Button>
+                    {/* Right section - Price and booking */}
+                    <div className="bg-orange-100 text-center w-full md:w-48 flex flex-col justify-center py-6 md:py-8 px-6 md:-mr-px md:-my-px md:rounded-r-lg">
+                      <div className="font-semi text-xl md:text-2xl mb-4 text-gray-900">
+                        {flight.currency && flight.currency !== 'USD' ? (
+                          <>
+                            {flight.currency} {price}
+                            <div className="text-sm text-gray-600">${Math.round(price * 0.85)}</div>
+                          </>
+                        ) : (
+                          `${price} Points`
+                        )}
+                      </div>
+                      <button className="bg-orange-500 hover:bg-white hover:text-orange-500 border hover:border-orange-500 text-white font-medium px-4 py-2 rounded-lg transition-colors">
+                        Book Now
+                      </button>
+                      {(flight.class || flight.cabin_class || seatsClass) && (
+                        <div className="text-xs text-gray-600 mt-2">
+                          {flight.class || flight.cabin_class || seatsClass}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
